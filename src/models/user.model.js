@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from 'bcrypt'
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -56,6 +57,17 @@ const userSchema = new mongoose.Schema({
 }, {
     timestamps: true
 })
+
+
+userSchema.pre("save", function () {
+    if (!this.password.isModified("password")) return
+
+    return this.password = bcrypt.hashSync(this.password, 10)
+})
+
+userSchema.method.comparePass = function (password) {
+    return bcrypt.compareSync(this.password, password)
+}
 
 const userModel = mongoose.model("users", userSchema)
 export default userModel
